@@ -1,0 +1,127 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf100
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;\f2\fnil\fcharset0 Menlo-Regular;
+}
+{\colortbl;\red255\green255\blue255;\red27\green31\blue35;\red255\green255\blue255;\red27\green31\blue35;
+}
+{\*\expandedcolortbl;;\cssrgb\c14118\c16078\c18431;\cssrgb\c100000\c100000\c100000;\cssrgb\c14118\c16078\c18431;
+}
+\margl1440\margr1440\vieww16400\viewh13540\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs36 \cf0 Few-shot learning:\
+
+\fs24 \
+Install packages specified in requirements.txt\
+\
+
+\f1\b\fs28 1. Download data:
+\f0\b0\fs24 \
+\
+Download and decompress data files. \
+miniImagenet: {\field{\*\fldinst{HYPERLINK "https://drive.google.com/u/0/uc?id=1fJAK5WZTjerW7EWHHQAR9pRJVNg1T1Y7&export=download"}}{\fldrslt https://drive.google.com/u/0/uc?id=1fJAK5WZTjerW7EWHHQAR9pRJVNg1T1Y7&export=download}}\
+CIFAR-FS: {\field{\*\fldinst{HYPERLINK "https://drive.google.com/u/0/uc?id=1GjGMI0q3bgcpcB_CjI40fX54WgLPuTpS&export=download"}}{\fldrslt https://drive.google.com/u/0/uc?id=1GjGMI0q3bgcpcB_CjI40fX54WgLPuTpS&export=download}}\
+FC100: {\field{\*\fldinst{HYPERLINK "https://drive.google.com/u/0/uc?id=1_ZsLyqI487NRDQhwvI7rg86FK3YAZvz1&export=download"}}{\fldrslt https://drive.google.com/u/0/uc?id=1_ZsLyqI487NRDQhwvI7rg86FK3YAZvz1&export=download}}\
+\
+For each dataset loader, specify the path to the directory. \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 For example, in /data/mini_imagenet.py line 30:\cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0  \
+\
+\pard\pardeftab720\sl380\partightenfactor0
+
+\f2 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 _MINI_IMAGENET_DATASET_DIR = 'path/to/miniImageNet'
+\fs27\fsmilli13600 \
+\
+
+\f1\b\fs28 2. Run baseline:
+\f0\b0\fs24  \
+run the following command for training Prototypical Net on 5-way 1-shot miniImagenet.\
+
+\f2 sh script_baseline.sh
+\fs27\fsmilli13600 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+Meaning of each arguments in \'93script_baseline.sh\'94 can be found in train.py.\
+\
+Highlight some arguments here:\
+
+\f1\b save-path
+\f0\b0 : the path to save the experiment checkpoint models and log files. The path of the saved models will be used while training warping layer methods.\
+
+\f1\b network
+\f0\b0 : The meta learner network. by default is ProtoNet, another choice is ResNet. We currently only use ProtoNet due to the limited computation resource.\
+
+\f1\b head
+\f0\b0 : The base learner method. By default is ProtoNet, can be changed to SVM or R2D2.\
+\
+
+\f1\b\fs28 3. Run warping layer method:
+\f0\b0\fs24 \
+\
+
+\f1\b 3.1 construct implication and exclusion relation matrix:
+\f0\b0 \
+run the following command to construct implication and exclusion relation matrix for miniImagenet:\
+\
+
+\f2 python construct_imp_exc.py\
+
+\f0 \
+The generated matrix will be saved in /pre_stores/mini_imagenet/\
+similarly, for generating relation matrix for CIFAR dataset, just change the directories in \'93construct_imp_exc.py\'94 to pre_stores/cifar_fs/\'85\
+\
+
+\f1\b 3.2 collect anchor points:
+\f0\b0 \
+run the following command to collect anchor points for miniImagenet:\
+\
+
+\f2 python construct_centers.py\
+\
+
+\f0 The generated anchor points matrix will be saved in /pre_stores/mini_imagenet/\'85\
+For constructing anchor points for CIFAR, change all directory and dataset arguments to CIFAR_FS or FC100.\
+\
+
+\f1\b 3.3 train model with warping layer:
+\f0\b0 \
+run the following command for training Prototypical Net with warping layer:\
+\pard\pardeftab720\sl380\partightenfactor0
+
+\f2 \cf4 \expnd0\expndtw0\kerning0
+sh script_train_warping.sh
+\f0 \cf0 \kerning1\expnd0\expndtw0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 Meaning of each arguments in \'93script_train_warping.sh\'94 can be found in train_opt.py.\
+Most of the arguments are the same as training the baseline model. We highlight some additional arguments here:\
+
+\f1\b gamma
+\f0\b0 : the hyper parameter to scale the regularizer term. Can be turned in range [1, 100]\
+
+\f1\b a_clip_max, a_clip_min
+\f0\b0 : the bounds for the alpha parameter to be optimized. Usually set to 1/(norm of hidden representation). The norm of hidden representation is equal to the dimension of hidden representation as we applied layer normalization. For miniImagenet, this number is 1600, for CIFAR dataset, this number is 256. If the network architecture is changed, need to recalculate this number.\
+\
+
+\f1\b\fs28 4. The structure of code:
+\f0\b0\fs24 \
+\
+\ul Main entry point of training model:\ulnone \
+\
+ \'93train.py\'94 for baseline\
+\'93train_opt.py\'94 for warping layer method\
+\
+\ul Warping layer implementation:\ulnone \
+\
+\'93models/opt_layer.py\'94 is the file for implementation of warping layer which is named as  
+\f2 OptNet, 
+\f0 all the forward, backward implementation and encapsulation are included in this file.\
+The warping layer is then used in the meta embedding network, which is constructed as ProtoNetEmbedding_Opt in \'93models/protonet_embedding.py\'94.\
+\
+\ul Data loading\ulnone  files are all in \'93/data\'94 folder\
+\
+\ul All label relation structure\ulnone  related files are pre-stored in \'93pre_stores/\'94.\
+\
+\
+}
